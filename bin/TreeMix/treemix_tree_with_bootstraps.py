@@ -68,7 +68,7 @@ def run_bootreps(in_file, out_dir, bootreps, block_size, outgroup):
 		os.system("treemix -i {0} -bootstrap -k {1} -root {2} -o {3}".format(infile, block_size, outgroup, outfile))
 	
 def combine_bootreps(out_dir, bootreps):
-	outfile = open("{0}cat_trees.tre".format(out_dir), 'wb')
+	outfile = open("{0}cat_trees.gz".format(out_dir), 'wb')
 	for i in range(bootreps):
 		infile = open("{0}bootstraps/treemix_bootrep_{1}.treeout.gz".format(out_dir, i+1), 'r')
 		for line in infile:
@@ -83,8 +83,10 @@ def main():
 	os.system("mkdir {0}bootstraps".format(args.out_dir)) # make dir for bootreps
 	run_bootreps(args.in_file, args.out_dir, args.bootreps, args.block_size, args.outgroup) # run bootreps
 	combine_bootreps(args.out_dir, args.bootreps) # combine bootreps into one file
-	# os.system("sumtrees.py --rooted -t {0}out_stem.treeout.tre -o {1}boottree.txt {2}cat_trees.tre".format(args.out_dir, args.out_dir, args.out_dir))
-	# sumtrees.py --rooted -t ./out_stem.treeout.tre -o ./boottree.txt ./cat_trees.tre
+	os.system("gunzip {0}out_stem.treeout.gz".format(args.out_dir)) # gunzip .treeout file
+	os.system("gunzip {0}cat_trees.gz".format(args.out_dir)) # gunzip .cat_trees file
+	os.system("sumtrees.py --rooted -t {0}out_stem.treeout -o {1}boottree.txt {2}cat_trees".format(args.out_dir, args.out_dir, args.out_dir))
+	# sumtrees.py --rooted -t ./out_stem.treeout -o ./boottree.txt ./cat_trees
 
 """
 I had problems with file encoding, you may need to paste the trees from the cat_trees.tre and 
